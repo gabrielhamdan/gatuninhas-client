@@ -54,12 +54,12 @@ api.interceptors.response.use(
         {},
         { withCredentials: true }
       );
-      tokenStore.setToken(data.token);
+      tokenStore.setAuth(data.token, data.user);
       flushQueue(data.token);
       original.headers.Authorization = `Bearer ${data.token}`;
       return api(original);
     } catch (refreshError) {
-      tokenStore.setToken(null);
+      tokenStore.setAuth(null, null);
       flushQueue(null);
       window.dispatchEvent(new CustomEvent('auth:session-expired'));
       return Promise.reject(refreshError);
