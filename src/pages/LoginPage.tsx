@@ -33,7 +33,7 @@ export function LoginPage() {
         rememberedEmail.clear();
       }
 
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       notify.error(getErrorMessage(error, { 401: 'E-mail ou senha inválidos' }));
     }
