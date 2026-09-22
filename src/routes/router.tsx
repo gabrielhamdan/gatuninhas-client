@@ -7,6 +7,7 @@ import { AdminPage } from '../pages/AdminPage';
 import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AdminRoute } from '../components/AdminRoute';
+import { KittyDetailPage } from '../pages/KittyDetailPage';
 
 export function AppRouter() {
   return (
@@ -18,6 +19,7 @@ export function AppRouter() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/cats" element={<KittiesPage />} />
+            <Route path="/cats/:id" element={<KittyDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminPage />} />
