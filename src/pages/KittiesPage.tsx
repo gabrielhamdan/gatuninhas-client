@@ -5,10 +5,12 @@ import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { listKitties, deleteKitty } from '../api/kitty';
+import { listKitties, deleteKitty, createKitty } from '../api/kitty';
+import { KittyFormDialog } from '../components/KittyFormDialog';
 import { notify } from '../lib/notify';
 import { getErrorMessage } from '../lib/errors';
 import type { KittyListItem } from '../types/kitty';
+import type { KittyFormData } from '../schemas/kittySchema';
 
 export function KittiesPage() {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ export function KittiesPage() {
   const [rowCount, setRowCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchKitties = useCallback(async () => {
     setLoading(true);
@@ -44,6 +48,26 @@ export function KittiesPage() {
     }
   };
 
+  const handleCreateSubmit = async (data: KittyFormData) => {
+    setIsSubmitting(true);
+    try {
+      const created = await createKitty({
+        name: data.name,
+        sex: data.sex,
+        intakeNotes: data.intakeNotes,
+        temperament: data.temperament,
+        profileImage: data.profileImage,
+      });
+      notify.success('Gatinho cadastrado.');
+      setDialogOpen(false);
+      navigate(`/kitties/${created.id}`);
+    } catch (error) {
+      notify.error(getErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const columns: GridColDef<KittyListItem>[] = [
     { field: 'name', headerName: 'Nome', flex: 1 },
     {
@@ -64,7 +88,7 @@ export function KittiesPage() {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5">Cadastro de gatinhos</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/cats/new')}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
           Cadastrar gatinho
         </Button>
       </Box>
@@ -80,7 +104,15 @@ export function KittiesPage() {
         pageSizeOptions={[10, 25, 50]}
         disableRowSelectionOnClick
         autoHeight
-        onRowClick={(params) => navigate(`/cats/${params.row.id}`)}
+        onRowClick={(params) => navigate(`/kitties/${params.row.id}`)}
+      />
+
+      <KittyFormDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSubmit={handleCreateSubmit}
+        kitty={null}
+        isSubmitting={isSubmitting}
       />
     </Box>
   );

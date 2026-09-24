@@ -2,12 +2,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
 import { HomePage } from '../pages/HomePage';
 import { KittiesPage } from '../pages/KittiesPage';
+import { KittyDetailPage } from '../pages/KittyDetailPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { AdminPage } from '../pages/AdminPage';
 import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AdminRoute } from '../components/AdminRoute';
-import { KittyFormPage } from '../pages/KittyFormPage';
 
 export function AppRouter() {
   return (
@@ -18,9 +18,8 @@ export function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/cats" element={<KittiesPage />} />
-            <Route path="/cats/new" element={<KittyFormPage />} />
-            <Route path="/cats/:id" element={<KittyFormPage />} />
+            <Route path="/kitties" element={<KittiesPage />} />
+            <Route path="/kitties/:id" element={<KittyDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminPage />} />

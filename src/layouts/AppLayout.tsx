@@ -111,7 +111,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const NAV_ITEMS = [
   { label: 'Início', path: '/', icon: <HomeIcon /> },
-  { label: 'Gatinhos', path: '/cats', icon: <PetsIcon /> },
+  { label: 'Gatinhos', path: '/kitties', icon: <PetsIcon /> },
 ];
 
 const BOTTOM_ITEMS = [
