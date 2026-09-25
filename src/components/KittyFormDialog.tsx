@@ -9,6 +9,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { kittySchema, kittySexOptions, kittySexLabels, DEFAULT_KITTY_SEX } from '../schemas/kittySchema';
 import type { KittyFormInput, KittyFormData } from '../schemas/kittySchema';
 import type { Kitty } from '../types/kitty';
+import { RadioGroup, Radio, FormControlLabel, FormLabel } from '@mui/material';
 
 interface KittyFormDialogProps {
   open: boolean;
@@ -25,7 +26,7 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
   const { register, handleSubmit, control, reset, watch, formState: { errors } } =
     useForm<KittyFormInput, unknown, KittyFormData>({
       resolver: zodResolver(kittySchema),
-      defaultValues: { name: '', sex: DEFAULT_KITTY_SEX, dob: '', coat: '', intakeNotes: '', temperament: '', notes: '' },
+      defaultValues: { name: '', sex: DEFAULT_KITTY_SEX, dob: { date: null, precision: 'UNKNOWN' }, coat: '', intakeNotes: '', temperament: '', observations: '' },
     });
 
   const profileImageFiles = watch('profileImage');
@@ -46,8 +47,8 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
     if (!open) return;
     setPreviewUrl(null);
     reset(kitty
-      ? { name: kitty.name, sex: kitty.sex, dob: '', coat: '', intakeNotes: kitty.intakeNotes, temperament: kitty.temperament, notes: '' }
-      : { name: '', sex: DEFAULT_KITTY_SEX, dob: '', coat: '', intakeNotes: '', temperament: '', notes: '' });
+      ? { name: kitty.name, sex: kitty.sex, dob: { date: kitty.dob.date, precision: kitty.dob.precision }, coat: '', intakeNotes: kitty.intakeNotes, temperament: kitty.temperament, observations: kitty.observations }
+      : { name: '', sex: DEFAULT_KITTY_SEX, dob: { date: '', precision: 'UNKNOWN' }, coat: '', intakeNotes: '', temperament: '', observations: '' });
   }, [open, kitty, reset]);
 
   return (
@@ -108,17 +109,33 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
             )}
           />
 
-          <TextField
-            label="Data de nascimento" type="date" fullWidth
-            slotProps={{ inputLabel: { shrink: true } }}
-            {...register('dob')}
-            helperText="Em breve"
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <FormLabel sx={{ fontSize: '0.875rem' }}>Data de nascimento</FormLabel>
+
+            <Controller
+              name="dob.precision"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup {...field} row>
+                  <FormControlLabel value="EXACT" control={<Radio />} label="Exata" />
+                  <FormControlLabel value="APPROXIMATE" control={<Radio />} label="Aproximada" />
+                  <FormControlLabel value="UNKNOWN" control={<Radio />} label="Desconhecida" />
+                </RadioGroup>
+              )}
+            />
+
+            <TextField
+              type="date" fullWidth
+              slotProps={{ inputLabel: { shrink: true } }}
+              disabled={watch('dob.precision') === 'UNKNOWN'}
+              {...register('dob.date')}
+            />
+          </Box>
 
           <TextField
             label="Pelagem" fullWidth
             {...register('coat')}
-            helperText="Em breve"
+            disabled
           />
 
           <TextField
@@ -132,9 +149,8 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
           />
 
           <TextField
-            label="Observação" fullWidth multiline rows={2}
-            {...register('notes')}
-            helperText="Em breve"
+            label="Observações" fullWidth multiline rows={2}
+            {...register('observations')}
           />
         </DialogContent>
 

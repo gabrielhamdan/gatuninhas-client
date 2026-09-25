@@ -36,8 +36,13 @@ export interface UpdateKittyPayload {
   id: string;
   name: string;
   sex: string;
+    dob: {
+    date: string | null;
+    precision: string;
+  };
   intakeNotes: string;
   temperament: string;
+  observations: string;
 }
 
 export function updateKitty(payload: UpdateKittyPayload) {

@@ -9,16 +9,23 @@ export const kittySexLabels: Record<(typeof kittySexOptions)[number], string> = 
   UNKNOWN: 'desconhecido',
 };
 
+export const dobPrecision = ['EXACT', 'APPROXIMATE', 'UNKNOWN'] as const;
+
 export const DEFAULT_KITTY_SEX: keyof typeof kittySexLabels = 'MALE';
+
+export const kittyDobSchema = z.object({
+  date: z.string().nullable(),
+  precision: z.enum(dobPrecision),
+});
 
 export const kittySchema = z.object({
   name: z.string().min(1, 'Informe o nome'),
   sex: z.enum(kittySexOptions, { message: 'Selecione o sexo' }),
-  dob: z.string().optional(),
+  dob: kittyDobSchema,
   coat: z.string().optional(),
   intakeNotes: z.string(),
   temperament: z.string(),
-  notes: z.string().optional(),
+  observations: z.string(),
   profileImage: z
     .custom<FileList>()
     .optional()

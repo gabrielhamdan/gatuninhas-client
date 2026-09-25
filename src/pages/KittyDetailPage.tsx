@@ -77,8 +77,13 @@ export function KittyDetailPage() {
         id: kitty.id,
         name: data.name,
         sex: data.sex,
+        dob: {
+          date: data.dob.precision === 'UNKNOWN' ? null : data.dob.date,
+          precision: data.dob.precision,
+        },
         intakeNotes: data.intakeNotes,
         temperament: data.temperament,
+        observations: data.observations,
       });
       notify.success('Alterações salvas.');
       setDialogOpen(false);
@@ -110,7 +115,6 @@ export function KittyDetailPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      {/* <Paper elevation={3} sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3, position: 'relative' }}> */}
       <Paper elevation={3} sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3, position: 'relative' }}>
 
         <IconButton
@@ -165,7 +169,11 @@ export function KittyDetailPage() {
             </Typography>
             <Chip label={kittySexLabels[kitty.sex]} sx={{ width: 'fit-content', my: 1 }} />
             <Typography variant="body2" color="text.secondary">Data de nascimento</Typography>
-            <Typography>—</Typography>
+            <Typography>
+              {kitty.dob.precision === 'UNKNOWN'
+                ? 'Desconhecida'
+                : `${new Date(kitty.dob.date + 'T00:00:00').toLocaleDateString('pt-BR')}${kitty.dob.precision === 'APPROXIMATE' ? ' (aproximada)' : ''}`}
+            </Typography>
             <Typography variant="body2" color="text.secondary">Pelagem</Typography>
             <Typography>—</Typography>
           </Box>
@@ -176,17 +184,15 @@ export function KittyDetailPage() {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Box>
             <Typography variant="body2" color="text.secondary">Notas de entrada</Typography>
-            <Typography>{kitty.intakeNotes}</Typography>
+            <Typography>{kitty.intakeNotes || '—'}</Typography>
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary">Temperamento</Typography>
-            <Typography>{kitty.temperament}</Typography>
+            <Typography>{kitty.temperament || '—'}</Typography>
           </Box>
           <Box>
-            <Typography variant="body2" color="text.secondary">Observação</Typography>
-            <Typography color="text.secondary" sx={{ fontStyle: 'italic' }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            </Typography>
+            <Typography variant="body2" color="text.secondary">Observações</Typography>
+            <Typography>{kitty.observations || '—'}</Typography>
           </Box>
         </Box>
       </Paper>
