@@ -21,6 +21,7 @@ export interface CreateKittyPayload {
   intakeNotes: string;
   temperament: string;
   profileImage?: File;
+  observations: string;
 }
 
 export function createKitty(payload: CreateKittyPayload) {
@@ -32,6 +33,7 @@ export function createKitty(payload: CreateKittyPayload) {
   formData.append('dob.precision', payload.dob.precision);
   formData.append('intakeNotes', payload.intakeNotes);
   formData.append('temperament', payload.temperament);
+  formData.append('observations', payload.observations);
   if (payload.profileImage) formData.append('profileImage', payload.profileImage);
 
   return api

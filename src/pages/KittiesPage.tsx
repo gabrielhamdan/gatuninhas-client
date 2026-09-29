@@ -58,6 +58,7 @@ export function KittiesPage() {
         intakeNotes: data.intakeNotes,
         temperament: data.temperament,
         profileImage: data.profileImage,
+        observations: data.observations,
       });
       notify.success('Gatinho cadastrado.');
       setDialogOpen(false);
