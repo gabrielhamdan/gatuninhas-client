@@ -54,6 +54,7 @@ export function KittiesPage() {
       const created = await createKitty({
         name: data.name,
         sex: data.sex,
+        dob: data.dob,
         intakeNotes: data.intakeNotes,
         temperament: data.temperament,
         profileImage: data.profileImage,

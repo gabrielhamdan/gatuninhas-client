@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Kitty, KittyListItem, PagedResponse } from '../types/kitty';
+import type { Kitty, KittyDob, KittyListItem, PagedResponse } from '../types/kitty';
 
 export function listKitties(page: number, size: number, sort = 'id,asc') {
   return api
@@ -14,15 +14,22 @@ export function getKitty(id: string) {
 export interface CreateKittyPayload {
   name: string;
   sex: string;
+  dob: {
+    date: string | null;
+    precision: string;
+  };
   intakeNotes: string;
   temperament: string;
   profileImage?: File;
 }
 
 export function createKitty(payload: CreateKittyPayload) {
+  console.log('createKitty', payload);
   const formData = new FormData();
   formData.append('name', payload.name);
   formData.append('sex', payload.sex);
+  formData.append('dob.date', payload.dob.date ?? '');
+  formData.append('dob.precision', payload.dob.precision);
   formData.append('intakeNotes', payload.intakeNotes);
   formData.append('temperament', payload.temperament);
   if (payload.profileImage) formData.append('profileImage', payload.profileImage);
@@ -36,7 +43,7 @@ export interface UpdateKittyPayload {
   id: string;
   name: string;
   sex: string;
-    dob: {
+  dob: {
     date: string | null;
     precision: string;
   };
