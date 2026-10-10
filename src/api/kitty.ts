@@ -1,5 +1,6 @@
 import { api } from './client';
 import type { Kitty, KittyDob, KittyListItem, PagedResponse } from '../types/kitty';
+import type { KittyCoatOption } from './kittyCoat';
 
 export function listKitties(page: number, size: number, sort = 'id,asc') {
   return api
@@ -18,6 +19,7 @@ export interface CreateKittyPayload {
     date: string | null;
     precision: string;
   };
+  coat: KittyCoatOption;
   intakeNotes: string;
   temperament: string;
   profileImage?: File;
@@ -25,12 +27,14 @@ export interface CreateKittyPayload {
 }
 
 export function createKitty(payload: CreateKittyPayload) {
-  console.log('createKitty', payload);
+  console.log(payload);
   const formData = new FormData();
   formData.append('name', payload.name);
   formData.append('sex', payload.sex);
   formData.append('dob.date', payload.dob.date ?? '');
   formData.append('dob.precision', payload.dob.precision);
+  if (payload.coat.id != null) formData.append('coat.id', String(payload.coat.id));
+  formData.append('coat.type', payload.coat.type);
   formData.append('intakeNotes', payload.intakeNotes);
   formData.append('temperament', payload.temperament);
   formData.append('observations', payload.observations);
@@ -49,12 +53,14 @@ export interface UpdateKittyPayload {
     date: string | null;
     precision: string;
   };
+  coat: KittyCoatOption;
   intakeNotes: string;
   temperament: string;
   observations: string;
 }
 
 export function updateKitty(payload: UpdateKittyPayload) {
+  console.log(payload);
   return api.put<Kitty>('/kitty', payload).then((res) => res.data);
 }
 

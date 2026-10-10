@@ -81,6 +81,10 @@ export function KittyDetailPage() {
           date: data.dob.precision === 'UNKNOWN' ? null : data.dob.date,
           precision: data.dob.precision,
         },
+        coat: {
+          id: data.coat.id,
+          type: data.coat.type
+        },
         intakeNotes: data.intakeNotes,
         temperament: data.temperament,
         observations: data.observations,
@@ -167,7 +171,9 @@ export function KittyDetailPage() {
             <Typography variant="h4" sx={{ textTransform: 'uppercase', fontWeight: 700 }}>
               {kitty.name}
             </Typography>
-            <Chip label={kittySexLabels[kitty.sex]} sx={{ width: 'fit-content', my: 1 }} />
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', my: 1 }}>
+              <Chip label={kittySexLabels[kitty.sex]} />
+            </Box>
             <Typography variant="body2" color="text.secondary">Data de nascimento</Typography>
             <Typography>
               {kitty.dob.precision === 'UNKNOWN'
@@ -175,7 +181,7 @@ export function KittyDetailPage() {
                 : `${new Date(kitty.dob.date + 'T00:00:00').toLocaleDateString('pt-BR')}${kitty.dob.precision === 'APPROXIMATE' ? ' (aproximada)' : ''}`}
             </Typography>
             <Typography variant="body2" color="text.secondary">Pelagem</Typography>
-            <Typography>—</Typography>
+            <Typography>{kitty.coat.type ?? '—'}</Typography>
           </Box>
         </Box>
 

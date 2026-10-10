@@ -12,11 +12,17 @@ export interface KittyDob {
   precision: KittyDobPrecision;
 }
 
+export interface KittyCoat {
+  id: number | null;
+  type: string
+}
+
 export interface Kitty {
   id: string;
   name: string;
   sex: KittySex;
   dob: KittyDob;
+  coat: KittyCoat;
   profileImage: string | null;
   images: string[];
   intakeNotes: string;

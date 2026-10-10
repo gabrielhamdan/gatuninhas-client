@@ -18,11 +18,16 @@ export const kittyDobSchema = z.object({
   precision: z.enum(dobPrecision),
 });
 
+export const kittyCoatSchema = z.object({
+  id: z.number().nullable(),
+  type: z.string()
+})
+
 export const kittySchema = z.object({
   name: z.string().min(1, 'Informe o nome'),
   sex: z.enum(kittySexOptions, { message: 'Selecione o sexo' }),
   dob: kittyDobSchema,
-  coat: z.string().optional(),
+  coat: kittyCoatSchema,
   intakeNotes: z.string(),
   temperament: z.string(),
   observations: z.string(),

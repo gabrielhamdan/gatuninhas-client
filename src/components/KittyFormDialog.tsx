@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, MenuItem, Button, Box, Avatar,
+  Autocomplete,
+  CircularProgress,
 } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { kittySchema, kittySexOptions, kittySexLabels, DEFAULT_KITTY_SEX } from '../schemas/kittySchema';
 import type { KittyFormInput, KittyFormData } from '../schemas/kittySchema';
 import type { Kitty } from '../types/kitty';
 import { RadioGroup, Radio, FormControlLabel, FormLabel } from '@mui/material';
+import { searchKittyCoats, type KittyCoatOption } from '../api/kittyCoat';
 
 interface KittyFormDialogProps {
   open: boolean;
@@ -23,10 +26,38 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
   const isEditing = !!kitty;
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  const [coatOptions, setCoatOptions] = useState<KittyCoatOption[]>([]);
+  const [coatLoading, setCoatLoading] = useState(false);
+  const [coatInput, setCoatInput] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!coatInput.trim()) {
+      setCoatOptions([]);
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      setCoatLoading(true);
+      try {
+        const results = await searchKittyCoats(coatInput);
+        setCoatOptions(results);
+      } finally {
+        setCoatLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [coatInput]);
+
   const { register, handleSubmit, control, reset, watch, formState: { errors } } =
     useForm<KittyFormInput, unknown, KittyFormData>({
       resolver: zodResolver(kittySchema),
-      defaultValues: { name: '', sex: DEFAULT_KITTY_SEX, dob: { date: null, precision: 'UNKNOWN' }, coat: '', intakeNotes: '', temperament: '', observations: '' },
+      defaultValues: { name: '', sex: DEFAULT_KITTY_SEX, dob: { date: null, precision: 'UNKNOWN' }, coat: { id: null, type: '' }, intakeNotes: '', temperament: '', observations: '' },
     });
 
   const profileImageFiles = watch('profileImage');
@@ -47,8 +78,8 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
     if (!open) return;
     setPreviewUrl(null);
     reset(kitty
-      ? { name: kitty.name, sex: kitty.sex, dob: { date: kitty.dob.date, precision: kitty.dob.precision }, coat: '', intakeNotes: kitty.intakeNotes, temperament: kitty.temperament, observations: kitty.observations }
-      : { name: '', sex: DEFAULT_KITTY_SEX, dob: { date: '', precision: 'UNKNOWN' }, coat: '', intakeNotes: '', temperament: '', observations: '' });
+      ? { name: kitty.name, sex: kitty.sex, dob: { date: kitty.dob.date, precision: kitty.dob.precision }, coat: { id: kitty.coat.id, type: kitty.coat.type }, intakeNotes: kitty.intakeNotes, temperament: kitty.temperament, observations: kitty.observations }
+      : { name: '', sex: DEFAULT_KITTY_SEX, dob: { date: '', precision: 'UNKNOWN' }, coat: { id: null, type: '' }, intakeNotes: '', temperament: '', observations: '' });
   }, [open, kitty, reset]);
 
   return (
@@ -132,10 +163,51 @@ export function KittyFormDialog({ open, onClose, onSubmit, kitty, isSubmitting }
             />
           </Box>
 
-          <TextField
-            label="Pelagem" fullWidth
-            {...register('coat')}
-            disabled
+          <Controller
+            name="coat"
+            control={control}
+            render={({ field }) => (
+              <Autocomplete
+                freeSolo
+                options={coatOptions}
+                loading={coatLoading}
+                getOptionLabel={(option) => typeof option === 'string' ? option : option.type}
+                filterOptions={(x) => x}
+                value={field.value.type ? field.value : null}
+                inputValue={coatInput}
+                onInputChange={(_, newInputValue) => {
+                  setCoatInput(newInputValue);
+                  field.onChange({ id: null, type: newInputValue });
+                }}
+                onChange={(_, newValue) => {
+                  if (typeof newValue === 'string') {
+                    field.onChange({ id: null, type: newValue });
+                  } else if (newValue) {
+                    field.onChange({ id: newValue.id, type: newValue.type });
+                  } else {
+                    field.onChange({ id: null, type: '' });
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Pelagem"
+                    slotProps={{
+                      ...params.slotProps,
+                      input: {
+                        ...params.slotProps?.input,
+                        endAdornment: (
+                          <>
+                            {coatLoading ? <CircularProgress size={18} /> : null}
+                            {params.slotProps?.input?.endAdornment}
+                          </>
+                        ),
+                      },
+                    }}
+                  />
+                )}
+              />
+            )}
           />
 
           <TextField

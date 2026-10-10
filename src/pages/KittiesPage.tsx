@@ -55,6 +55,7 @@ export function KittiesPage() {
         name: data.name,
         sex: data.sex,
         dob: data.dob,
+        coat: data.coat,
         intakeNotes: data.intakeNotes,
         temperament: data.temperament,
         profileImage: data.profileImage,
