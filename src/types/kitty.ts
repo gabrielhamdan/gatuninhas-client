@@ -17,7 +17,18 @@ export interface KittyCoat {
   type: string
 }
 
+export interface KittyPersonality {
+  id: string;
+  affection: number;
+  energy: number;
+  curiosity: number;
+  shyness: number;
+  sleepiness: number;
+  fear: number;
+}
+
 export interface Kitty {
+  personality: KittyPersonality;
   id: string;
   name: string;
   sex: KittySex;

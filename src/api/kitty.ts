@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Kitty, KittyDob, KittyListItem, PagedResponse } from '../types/kitty';
+import type { Kitty, KittyListItem, KittyPersonality, PagedResponse } from '../types/kitty';
 import type { KittyCoatOption } from './kittyCoat';
 
 export function listKitties(page: number, size: number, sort = 'id,asc') {
@@ -60,10 +60,13 @@ export interface UpdateKittyPayload {
 }
 
 export function updateKitty(payload: UpdateKittyPayload) {
-  console.log(payload);
   return api.put<Kitty>('/kitty', payload).then((res) => res.data);
 }
 
 export function deleteKitty(id: string) {
   return api.delete(`/kitty/${id}`).then((res) => res.data);
+}
+
+export function setKittyPersonality(personality: KittyPersonality) {
+  return api.post(`/kitty/${personality.id}/personality`, personality).then((res) => res.data);
 }

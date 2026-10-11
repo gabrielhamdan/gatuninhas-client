@@ -20,8 +20,9 @@ import { TraitScale } from '../components/TraitScale';
 import { kittySexLabels } from '../schemas/kittySchema';
 import { notify } from '../lib/notify';
 import { getErrorMessage } from '../lib/errors';
-import type { Kitty } from '../types/kitty';
+import type { Kitty, KittyPersonality } from '../types/kitty';
 import type { KittyFormData } from '../schemas/kittySchema';
+import { setKittyPersonality } from '../api/kitty';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -38,8 +39,9 @@ function TabPanel({ children, value, index }: TabPanelProps) {
   );
 }
 
-// Placeholder até existir contrato de API pra características.
-const MOCK_TRAITS = { carinho: 4, energia: 3, curiosidade: 5, timidez: 2, soninho: 3, medo: 1 };
+const defaultPersonality = (id: string): KittyPersonality => ({
+  id, affection: 3, energy: 3, curiosity: 3, shyness: 3, sleepiness: 3, fear: 3,
+});
 
 export function KittyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,6 +53,26 @@ export function KittyDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  const [personality, setPersonality] = useState<KittyPersonality>(defaultPersonality(''));
+
+  useEffect(() => {
+    if (kitty) setPersonality(kitty.personality ?? defaultPersonality(kitty.id));
+  }, [kitty]);
+
+  const handleTraitChange = async (trait: keyof Omit<KittyPersonality, 'id'>, value: number) => {
+    if (!personality) return;
+    const previous = personality;
+    const next = { ...personality, [trait]: value };
+    setPersonality(next);
+    try {
+      await setKittyPersonality(next);
+      notify.success('Traço alterado.');
+    } catch (error) {
+      setPersonality(previous);
+      notify.error(getErrorMessage(error));
+    }
+  };
 
   const fetchKitty = useCallback(async () => {
     if (!id) return;
@@ -220,12 +242,12 @@ export function KittyDetailPage() {
               rowGap: 2,
             }}
           >
-            <TraitScale icon={FavoriteIcon} label="Carinho" value={MOCK_TRAITS.carinho} />
-            <TraitScale icon={BoltIcon} label="Energia" value={MOCK_TRAITS.energia} />
-            <TraitScale icon={QuestionMarkIcon} label="Curiosidade" value={MOCK_TRAITS.curiosidade} />
-            <TraitScale icon={TheaterComedyIcon} label="Timidez" value={MOCK_TRAITS.timidez} />
-            <TraitScale icon={SnoozeIcon} label="Soninho" value={MOCK_TRAITS.soninho} />
-            <TraitScale icon={ReportProblemIcon} label="Medo" value={MOCK_TRAITS.medo} />
+            <TraitScale icon={FavoriteIcon} label="Carinho" value={personality.affection} onChange={(v) => handleTraitChange('affection', v)} />
+            <TraitScale icon={BoltIcon} label="Energia" value={personality.energy} onChange={(v) => handleTraitChange('energy', v)} />
+            <TraitScale icon={QuestionMarkIcon} label="Curiosidade" value={personality.curiosity} onChange={(v) => handleTraitChange('curiosity', v)} />
+            <TraitScale icon={TheaterComedyIcon} label="Timidez" value={personality.shyness} onChange={(v) => handleTraitChange('shyness', v)} />
+            <TraitScale icon={SnoozeIcon} label="Soninho" value={personality.sleepiness} onChange={(v) => handleTraitChange('sleepiness', v)} />
+            <TraitScale icon={ReportProblemIcon} label="Medo" value={personality.fear} onChange={(v) => handleTraitChange('fear', v)} />
           </Box>
         </Paper>
       </TabPanel>
