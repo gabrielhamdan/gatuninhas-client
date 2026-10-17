@@ -1,11 +1,11 @@
-const STORAGE_KEY = 'rememberedEmail';
+const STORAGE_KEY = 'remembereLogin';
 
-export const rememberedEmail = {
+export const rememberedLogin = {
   get(): string | null {
     return localStorage.getItem(STORAGE_KEY);
   },
-  set(email: string) {
-    localStorage.setItem(STORAGE_KEY, email);
+  set(login: string) {
+    localStorage.setItem(STORAGE_KEY, login);
   },
   clear() {
     localStorage.removeItem(STORAGE_KEY);

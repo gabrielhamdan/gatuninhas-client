@@ -6,36 +6,38 @@ import { Box, Button, Checkbox, FormControlLabel, Paper, TextField, Typography }
 import { useAuth } from '../auth/AuthContext';
 import { getErrorMessage } from '../lib/errors';
 import { notify } from '../lib/notify';
-import { rememberedEmail } from '../lib/rememberedEmail';
+import { rememberedLogin } from '../lib/rememberedLogin';
 import { loginSchema } from '../schemas/loginSchema';
 import type { LoginFormData } from '../schemas/loginSchema';
+import { RecoverPasswordDialog } from '../components/RecoverPasswordDialog';
 
 export function LoginPage() {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [rememberMe, setRememberMe] = useState(!!rememberedEmail.get());
+  const [rememberMe, setRememberMe] = useState(!!rememberedLogin.get());
+  const [recoverOpen, setRecoverOpen] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: rememberedEmail.get() ?? '',
+      login: rememberedLogin.get() ?? '',
       password: '',
     },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data.email, data.password);
+      await login(data.login, data.password);
 
       if (rememberMe) {
-        rememberedEmail.set(data.email);
+        rememberedLogin.set(data.login);
       } else {
-        rememberedEmail.clear();
+        rememberedLogin.clear();
       }
 
       navigate('/');
     } catch (error) {
-      notify.error(getErrorMessage(error, { 401: 'E-mail ou senha inválidos' }));
+      notify.error(getErrorMessage(error, { 401: 'Login ou senha inválidos' }));
     }
   };
 
@@ -47,15 +49,14 @@ export function LoginPage() {
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate
-             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField
-            label="E-mail"
-            type="email"
+            label="Login"
             fullWidth
             autoComplete="off"
-            {...register('email')}
-            error={!!errors.email}
-            helperText={errors.email?.message}
+            {...register('login')}
+            error={!!errors.login}
+            helperText={errors.login?.message}
           />
 
           <TextField
@@ -69,14 +70,20 @@ export function LoginPage() {
 
           <FormControlLabel
             control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />}
-            label="Lembrar e-mail"
+            label="Confiar neste dispositivo"
           />
 
           <Button type="submit" variant="contained" fullWidth disabled={isLoading}>
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
+
+          <Button variant="text" size="small" onClick={() => setRecoverOpen(true)}>
+            Esqueci minha senha
+          </Button>
         </Box>
       </Paper>
+
+      <RecoverPasswordDialog open={recoverOpen} onClose={() => setRecoverOpen(false)} />
     </Box>
   );
 }

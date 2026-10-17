@@ -51,10 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('auth:session-expired', handleExpired);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (login: string, password: string) => {
     setIsLoading(true);
     try {
-      const { data } = await api.post<TokenResponse>('/auth/login', { email, password });
+      const { data } = await api.post<TokenResponse>('/auth/login', { login, password });
       tokenStore.setAuth(data.token, data.user);
       setUser(data.user);
     } finally {

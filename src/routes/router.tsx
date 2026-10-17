@@ -8,12 +8,17 @@ import { AdminPage } from '../pages/AdminPage';
 import { AppLayout } from '../layouts/AppLayout';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AdminRoute } from '../components/AdminRoute';
+import { ResetPasswordPage } from '../pages/ResetPasswordPage';
+import { RegisterUserPage } from '../pages/RegisterUserPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/recover-pwd/:token" element={<ResetPasswordPage />} />
+        <Route path="/new-user/:token" element={<RegisterUserPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
@@ -27,7 +32,7 @@ export function AppRouter() {
           </Route>
         </Route>
 
-        <Route path="*" element={<LoginPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

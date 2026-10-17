@@ -23,6 +23,7 @@ import { getErrorMessage } from '../lib/errors';
 import type { Kitty, KittyPersonality } from '../types/kitty';
 import type { KittyFormData } from '../schemas/kittySchema';
 import { setKittyPersonality } from '../api/kitty';
+import { useAuth } from '../auth/AuthContext';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -51,9 +52,7 @@ export function KittyDetailPage() {
   const [tab, setTab] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-
   const [personality, setPersonality] = useState<KittyPersonality>(defaultPersonality(''));
 
   useEffect(() => {

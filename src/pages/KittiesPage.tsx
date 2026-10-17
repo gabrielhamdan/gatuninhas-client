@@ -11,6 +11,8 @@ import { notify } from '../lib/notify';
 import { getErrorMessage } from '../lib/errors';
 import type { KittyListItem } from '../types/kitty';
 import type { KittyFormData } from '../schemas/kittySchema';
+import { useAuth } from '../auth/AuthContext';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export function KittiesPage() {
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ export function KittiesPage() {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 10 });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+  const [pendingKitty, setPendingKitty] = useState<KittyListItem | null>(null);
 
   const fetchKitties = useCallback(async () => {
     setLoading(true);
@@ -38,10 +42,15 @@ export function KittiesPage() {
     fetchKitties();
   }, [fetchKitties]);
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteRequest = (kitty: KittyListItem) => {
+    setPendingKitty(kitty);
+  }
+
+  const handleDelete = async (id: string | undefined) => {
     try {
-      await deleteKitty(id);
+      id && await deleteKitty(id);
       notify.success('Gatinho removido.');
+      setPendingKitty(null);
       fetchKitties();
     } catch (error) {
       notify.error(getErrorMessage(error));
@@ -80,7 +89,7 @@ export function KittiesPage() {
       filterable: false,
       width: 60,
       renderCell: (params) => (
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDelete(params.row.id); }}>
+        user?.role === 'ADMIN' && <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteRequest(params.row); }}>
           <DeleteIcon fontSize="small" />
         </IconButton>
       ),
@@ -88,35 +97,46 @@ export function KittiesPage() {
   ];
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5">Cadastro de gatinhos</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
-          Cadastrar gatinho
-        </Button>
+    <>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h5">Cadastro de gatinhos</Typography>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setDialogOpen(true)}>
+            Cadastrar gatinho
+          </Button>
+        </Box>
+
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          rowCount={rowCount}
+          loading={loading}
+          paginationMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[10, 25, 50]}
+          disableRowSelectionOnClick
+          autoHeight
+          onRowClick={(params) => navigate(`/kitties/${params.row.id}`)}
+        />
+
+        <KittyFormDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSubmit={handleCreateSubmit}
+          kitty={null}
+          isSubmitting={isSubmitting}
+        />
       </Box>
 
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        rowCount={rowCount}
-        loading={loading}
-        paginationMode="server"
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[10, 25, 50]}
-        disableRowSelectionOnClick
-        autoHeight
-        onRowClick={(params) => navigate(`/kitties/${params.row.id}`)}
+      <ConfirmDialog
+        open={!!pendingKitty}
+        title="Excluir gatinho"
+        message={`Deseja realmente excluir ${pendingKitty?.name}? Todos os dados associados a esse gatinho, incluindo histórico médico, medicações e imagens, serão excluídos permanentemente. Essa ação é irreversível.`}
+        confirmLabel="Excluir"
+        onConfirm={() => handleDelete(pendingKitty?.id)}
+        onCancel={() => setPendingKitty(null)}
       />
-
-      <KittyFormDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        onSubmit={handleCreateSubmit}
-        kitty={null}
-        isSubmitting={isSubmitting}
-      />
-    </Box>
+    </>
   );
 }
