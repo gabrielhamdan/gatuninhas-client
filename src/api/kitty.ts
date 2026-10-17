@@ -1,0 +1,72 @@
+import { api } from './client';
+import type { Kitty, KittyListItem, KittyPersonality, PagedResponse } from '../types/kitty';
+import type { KittyCoatOption } from './kittyCoat';
+
+export function listKitties(page: number, size: number, sort = 'id,asc') {
+  return api
+    .get<PagedResponse<KittyListItem>>('/kitty', { params: { page, size, sort } })
+    .then((res) => res.data);
+}
+
+export function getKitty(id: string) {
+  return api.get<Kitty>(`/kitty/${id}`).then((res) => res.data);
+}
+
+export interface CreateKittyPayload {
+  name: string;
+  sex: string;
+  dob: {
+    date: string | null;
+    precision: string;
+  };
+  coat: KittyCoatOption;
+  intakeNotes: string;
+  temperament: string;
+  profileImage?: File;
+  observations: string;
+}
+
+export function createKitty(payload: CreateKittyPayload) {
+  console.log(payload);
+  const formData = new FormData();
+  formData.append('name', payload.name);
+  formData.append('sex', payload.sex);
+  formData.append('dob.date', payload.dob.date ?? '');
+  formData.append('dob.precision', payload.dob.precision);
+  if (payload.coat.id != null) formData.append('coat.id', String(payload.coat.id));
+  formData.append('coat.type', payload.coat.type);
+  formData.append('intakeNotes', payload.intakeNotes);
+  formData.append('temperament', payload.temperament);
+  formData.append('observations', payload.observations);
+  if (payload.profileImage) formData.append('profileImage', payload.profileImage);
+
+  return api
+    .post<Kitty>('/kitty', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then((res) => res.data);
+}
+
+export interface UpdateKittyPayload {
+  id: string;
+  name: string;
+  sex: string;
+  dob: {
+    date: string | null;
+    precision: string;
+  };
+  coat: KittyCoatOption;
+  intakeNotes: string;
+  temperament: string;
+  observations: string;
+}
+
+export function updateKitty(payload: UpdateKittyPayload) {
+  return api.put<Kitty>('/kitty', payload).then((res) => res.data);
+}
+
+export function deleteKitty(id: string) {
+  return api.delete(`/kitty/${id}`).then((res) => res.data);
+}
+
+export function setKittyPersonality(personality: KittyPersonality) {
+  return api.post(`/kitty/${personality.id}/personality`, personality).then((res) => res.data);
+}

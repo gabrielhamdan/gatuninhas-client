@@ -1,0 +1,41 @@
+import { z } from 'zod';
+
+export const kittySexOptions = ['MALE', 'FEMALE', 'INTERSEX', 'UNKNOWN'] as const;
+
+export const kittySexLabels: Record<(typeof kittySexOptions)[number], string> = {
+  MALE: 'macho',
+  FEMALE: 'fêmea',
+  INTERSEX: 'intersexo',
+  UNKNOWN: 'desconhecido',
+};
+
+export const dobPrecision = ['EXACT', 'APPROXIMATE', 'UNKNOWN'] as const;
+
+export const DEFAULT_KITTY_SEX: keyof typeof kittySexLabels = 'MALE';
+
+export const kittyDobSchema = z.object({
+  date: z.string().nullable(),
+  precision: z.enum(dobPrecision),
+});
+
+export const kittyCoatSchema = z.object({
+  id: z.number().nullable(),
+  type: z.string()
+})
+
+export const kittySchema = z.object({
+  name: z.string().min(1, 'Informe o nome'),
+  sex: z.enum(kittySexOptions, { message: 'Selecione o sexo' }),
+  dob: kittyDobSchema,
+  coat: kittyCoatSchema,
+  intakeNotes: z.string(),
+  temperament: z.string(),
+  observations: z.string(),
+  profileImage: z
+    .custom<FileList>()
+    .optional()
+    .transform((files) => (files && files.length > 0 ? files[0] : undefined)),
+});
+
+export type KittyFormInput = z.input<typeof kittySchema>;
+export type KittyFormData = z.output<typeof kittySchema>;

@@ -9,7 +9,7 @@ import type { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
+import logo from '../assets/logo.png';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -111,7 +111,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const NAV_ITEMS = [
   { label: 'Início', path: '/', icon: <HomeIcon /> },
-  { label: 'Gatinhos', path: '/cats', icon: <PetsIcon /> },
+  { label: 'Gatinhos', path: '/kitties', icon: <PetsIcon /> },
 ];
 
 const BOTTOM_ITEMS = [
@@ -146,9 +146,8 @@ export function AppLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Gatuninhas
-          </Typography>
+          
+          <Box component="img" src={logo} alt="Gatuninhas" sx={{ height: 32, filter: 'brightness(0) invert(1)' }} />
         </Toolbar>
       </AppBar>
 

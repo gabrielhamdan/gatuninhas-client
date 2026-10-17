@@ -1,0 +1,50 @@
+export type KittySex = 'MALE' | 'FEMALE' | 'INTERSEX' | 'UNKNOWN';
+
+export interface KittyListItem {
+  id: string;
+  name: string;
+}
+
+export type KittyDobPrecision = 'EXACT' | 'APPROXIMATE' | 'UNKNOWN';
+
+export interface KittyDob {
+  date: string | null;
+  precision: KittyDobPrecision;
+}
+
+export interface KittyCoat {
+  id: number | null;
+  type: string
+}
+
+export interface KittyPersonality {
+  id: string;
+  affection: number;
+  energy: number;
+  curiosity: number;
+  shyness: number;
+  sleepiness: number;
+  fear: number;
+}
+
+export interface Kitty {
+  personality: KittyPersonality;
+  id: string;
+  name: string;
+  sex: KittySex;
+  dob: KittyDob;
+  coat: KittyCoat;
+  profileImage: string | null;
+  images: string[];
+  intakeNotes: string;
+  temperament: string;
+  observations: string;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}
