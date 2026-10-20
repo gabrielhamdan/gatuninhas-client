@@ -132,7 +132,7 @@ export function KittiesPage() {
       <ConfirmDialog
         open={!!pendingKitty}
         title="Excluir gatinho"
-        message={`Deseja realmente excluir ${pendingKitty?.name}? Todos os dados associados a esse gatinho, incluindo histórico médico, medicações e imagens, serão excluídos permanentemente. Essa ação é irreversível.`}
+        message={`Deseja realmente excluir ${pendingKitty?.name}? Todos os dados associados a esse gatinho, incluindo histórico médico, personalidade e imagens, serão excluídos permanentemente. Essa ação é irreversível.`}
         confirmLabel="Excluir"
         onConfirm={() => handleDelete(pendingKitty?.id)}
         onCancel={() => setPendingKitty(null)}

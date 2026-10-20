@@ -23,7 +23,6 @@ import { getErrorMessage } from '../lib/errors';
 import type { Kitty, KittyPersonality } from '../types/kitty';
 import type { KittyFormData } from '../schemas/kittySchema';
 import { setKittyPersonality } from '../api/kitty';
-import { useAuth } from '../auth/AuthContext';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -34,7 +33,7 @@ interface TabPanelProps {
 function TabPanel({ children, value, index }: TabPanelProps) {
   if (value !== index) return null;
   return (
-    <Box sx={{ pt: 3, maxWidth: 600, mx: 'auto' }}>
+    <Box sx={{ pt: 3, maxWidth: '100%' }}>
       {children}
     </Box>
   );
@@ -195,126 +194,124 @@ export function KittyDetailPage() {
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', my: 1 }}>
               <Chip label={kittySexLabels[kitty.sex]} />
             </Box>
-            <Typography variant="body2" color="text.secondary">Data de nascimento</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="text.secondary">Data de nascimento</Typography>
             <Typography>
               {kitty.dob.precision === 'UNKNOWN'
                 ? 'Desconhecida'
                 : `${new Date(kitty.dob.date + 'T00:00:00').toLocaleDateString('pt-BR')}${kitty.dob.precision === 'APPROXIMATE' ? ' (aproximada)' : ''}`}
             </Typography>
-            <Typography variant="body2" color="text.secondary">Pelagem</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="text.secondary">Pelagem</Typography>
             <Typography>{kitty.coat.type ?? '—'}</Typography>
           </Box>
         </Box>
 
         <Divider />
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Notas de entrada</Typography>
-            <Typography>{kitty.intakeNotes || '—'}</Typography>
+        <Tabs value={tab} onChange={(_, value) => setTab(value)} variant="scrollable" scrollButtons="auto">
+          <Tab label="Bio" />
+          <Tab label="Personalidade" />
+          <Tab label="Histórico médico" />
+          <Tab label="Imagens" />
+        </Tabs>
+
+        <TabPanel value={tab} index={0}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="text.secondary">Notas de entrada</Typography>
+              <Typography>{kitty.intakeNotes || '—'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="text.secondary">Temperamento</Typography>
+              <Typography>{kitty.temperament || '—'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="text.secondary">Observações</Typography>
+              <Typography>{kitty.observations || '—'}</Typography>
+            </Box>
           </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Temperamento</Typography>
-            <Typography>{kitty.temperament || '—'}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary">Observações</Typography>
-            <Typography>{kitty.observations || '—'}</Typography>
-          </Box>
-        </Box>
-      </Paper>
+        </TabPanel>
 
-      <Tabs value={tab} onChange={(_, value) => setTab(value)}>
-        <Tab label="Personalidade" />
-        <Tab label="Histórico clínico" />
-        <Tab label="Medicações" />
-        <Tab label="Imagens" />
-      </Tabs>
-
-      <TabPanel value={tab} index={0}>
-        <Paper variant="outlined" sx={{ p: 3, maxWidth: 600 }}>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-              columnGap: 4,
-              rowGap: 2,
-            }}
-          >
-            <TraitScale icon={FavoriteIcon} label="Carinho" value={personality.affection} onChange={(v) => handleTraitChange('affection', v)} />
-            <TraitScale icon={BoltIcon} label="Energia" value={personality.energy} onChange={(v) => handleTraitChange('energy', v)} />
-            <TraitScale icon={QuestionMarkIcon} label="Curiosidade" value={personality.curiosity} onChange={(v) => handleTraitChange('curiosity', v)} />
-            <TraitScale icon={TheaterComedyIcon} label="Timidez" value={personality.shyness} onChange={(v) => handleTraitChange('shyness', v)} />
-            <TraitScale icon={SnoozeIcon} label="Soninho" value={personality.sleepiness} onChange={(v) => handleTraitChange('sleepiness', v)} />
-            <TraitScale icon={ReportProblemIcon} label="Medo" value={personality.fear} onChange={(v) => handleTraitChange('fear', v)} />
-          </Box>
-        </Paper>
-      </TabPanel>
-
-      <TabPanel value={tab} index={1}>
-        <Typography color="text.secondary">Em breve.</Typography>
-      </TabPanel>
-
-      <TabPanel value={tab} index={2}>
-        <Typography color="text.secondary">Em breve.</Typography>
-      </TabPanel>
-
-      <TabPanel value={tab} index={3}>
-        <ImageList variant="masonry" cols={4} gap={8} sx={{ maxWidth: 600 }}>
-          <ImageListItem>
+        <TabPanel value={tab} index={1}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', padding: 5 }}>
             <Box
-              component="label"
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                columnGap: 4,
+                rowGap: 2
+              }}
+            >
+              <TraitScale icon={FavoriteIcon} label="Carinho" value={personality.affection} onChange={(v) => handleTraitChange('affection', v)} />
+              <TraitScale icon={BoltIcon} label="Energia" value={personality.energy} onChange={(v) => handleTraitChange('energy', v)} />
+              <TraitScale icon={QuestionMarkIcon} label="Curiosidade" value={personality.curiosity} onChange={(v) => handleTraitChange('curiosity', v)} />
+              <TraitScale icon={TheaterComedyIcon} label="Timidez" value={personality.shyness} onChange={(v) => handleTraitChange('shyness', v)} />
+              <TraitScale icon={SnoozeIcon} label="Soninho" value={personality.sleepiness} onChange={(v) => handleTraitChange('sleepiness', v)} />
+              <TraitScale icon={ReportProblemIcon} label="Medo" value={personality.fear} onChange={(v) => handleTraitChange('fear', v)} />
+            </Box>
+          </Box>
+        </TabPanel>
+
+        <TabPanel value={tab} index={2}>
+          <Typography color="text.secondary">Em breve.</Typography>
+        </TabPanel>
+
+        <TabPanel value={tab} index={3}>
+          <ImageList variant="masonry" cols={4} gap={8} sx={{ maxWidth: 600 }}>
+            <ImageListItem>
+              <Box
+                component="label"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  aspectRatio: '1 / 1',
+                  borderRadius: 1,
+                  border: '2px dashed',
+                  borderColor: 'divider',
+                  cursor: 'pointer',
+                  color: 'text.secondary',
+                  '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
+                }}
+              >
+                <AddIcon fontSize="large" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={() => notify.warning('Envio de imagens ainda não implementado.')}
+                />
+              </Box>
+            </ImageListItem>
+
+            {kitty.images.map((src) => (
+              <ImageListItem key={src} onClick={() => setLightboxSrc(src)} sx={{ cursor: 'pointer' }}>
+                <img src={src} alt={kitty.name} loading="lazy" style={{ borderRadius: 4, display: 'block', width: '100%' }} />
+              </ImageListItem>
+            ))}
+          </ImageList>
+
+          <Modal open={!!lightboxSrc} onClose={() => setLightboxSrc(null)}>
+            <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                aspectRatio: '1 / 1',
-                borderRadius: 1,
-                border: '2px dashed',
-                borderColor: 'divider',
-                cursor: 'pointer',
-                color: 'text.secondary',
-                '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
+                width: '100%',
+                height: '100%',
+                outline: 'none',
               }}
+              onClick={() => setLightboxSrc(null)}
             >
-              <AddIcon fontSize="large" />
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={() => notify.warning('Envio de imagens ainda não implementado.')}
+              <img
+                src={lightboxSrc ?? undefined}
+                alt={kitty.name}
+                style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 8 }}
+                onClick={(e) => e.stopPropagation()}
               />
             </Box>
-          </ImageListItem>
-
-          {kitty.images.map((src) => (
-            <ImageListItem key={src} onClick={() => setLightboxSrc(src)} sx={{ cursor: 'pointer' }}>
-              <img src={src} alt={kitty.name} loading="lazy" style={{ borderRadius: 4, display: 'block', width: '100%' }} />
-            </ImageListItem>
-          ))}
-        </ImageList>
-
-        <Modal open={!!lightboxSrc} onClose={() => setLightboxSrc(null)}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              height: '100%',
-              outline: 'none',
-            }}
-            onClick={() => setLightboxSrc(null)}
-          >
-            <img
-              src={lightboxSrc ?? undefined}
-              alt={kitty.name}
-              style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 8 }}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </Box>
-        </Modal>
-      </TabPanel>
+          </Modal>
+        </TabPanel>
+      </Paper>
 
       <KittyFormDialog
         open={dialogOpen}
