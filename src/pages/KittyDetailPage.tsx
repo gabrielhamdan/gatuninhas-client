@@ -23,6 +23,7 @@ import { getErrorMessage } from '../lib/errors';
 import type { Kitty, KittyPersonality } from '../types/kitty';
 import type { KittyFormData } from '../schemas/kittySchema';
 import { setKittyPersonality } from '../api/kitty';
+import { ClinicalHistoryTab } from '../components/kitty/ClinicalHistoryTab';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -33,7 +34,7 @@ interface TabPanelProps {
 function TabPanel({ children, value, index }: TabPanelProps) {
   if (value !== index) return null;
   return (
-    <Box sx={{ pt: 3, maxWidth: '100%' }}>
+    <Box sx={{ maxWidth: '100%' }}>
       {children}
     </Box>
   );
@@ -215,7 +216,7 @@ export function KittyDetailPage() {
         </Tabs>
 
         <TabPanel value={tab} index={0}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 'bold' }} color="text.secondary">Notas de entrada</Typography>
               <Typography>{kitty.intakeNotes || '—'}</Typography>
@@ -252,7 +253,7 @@ export function KittyDetailPage() {
         </TabPanel>
 
         <TabPanel value={tab} index={2}>
-          <Typography color="text.secondary">Em breve.</Typography>
+          <ClinicalHistoryTab kittyId={kitty.id} />
         </TabPanel>
 
         <TabPanel value={tab} index={3}>
